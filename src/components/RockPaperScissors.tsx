@@ -1,24 +1,11 @@
 import { useState } from "react";
-import { ConnectButton, TransactionButton, useActiveAccount, useActiveWallet, useDisconnect, useReadContract, useConnect } from "thirdweb/react";
+import { ConnectButton, TransactionButton, useActiveAccount, useActiveWallet, useDisconnect, useReadContract } from "thirdweb/react";
 import { client } from "../client";
-import { inAppWallet, createWallet } from "thirdweb/wallets";
+import { inAppWallet } from "thirdweb/wallets";
 import { shortenAddress } from "thirdweb/utils";
 import { getContract } from "thirdweb";
+import { sepolia } from "thirdweb/chains";
 import { claimTo, getBalance } from "thirdweb/extensions/erc20";
-
-// Define the custom Coin Hunters network
-const coinHuntersNetwork = {
-    id: 10202, // Add the id property
-    name: "Coin Hunters",
-    chainId: 0x27DA, // This is the decimal format
-    rpc: ["https://dymrollapp-evm.chainad.org"],
-    nativeCurrency: {
-        name: "Coin Hunters Token",
-        symbol: "CHTR",
-        decimals: 18,
-    },
-    blockExplorerUrls: [], // Add block explorer URLs if available
-};
 
 type Guess = 'High' | 'Low';
 type Result = 'Win' | 'Lose';
@@ -33,14 +20,13 @@ interface GameResult {
 
 export default function HighLowGuessingGame() {
     const account = useActiveAccount();
-    const { disconnect } = useDisconnect();
+    const {disconnect} = useDisconnect();
     const wallet = useActiveWallet();
-    const { connect } = useConnect();
 
     const contract = getContract({
         client: client,
-        chain: coinHuntersNetwork, // Use the custom network
-        address: "0x0CC72579F6813652cd1f1bBef99846A2Fe60E0d3"
+        chain: sepolia,
+        address: "0xf0Fb0F1c703b1129634e042e459Ec41cF79650B7"
     });
 
     const [result, setResult] = useState<GameResult | null>(null);
@@ -72,7 +58,7 @@ export default function HighLowGuessingGame() {
             contract: contract,
             address: account?.address!
         }
-    );
+    )
 
     return (
         <div style={{
@@ -101,44 +87,22 @@ export default function HighLowGuessingGame() {
             }}>
                 <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '2rem', textAlign: 'center' }}>High or Low Game</h1>
                 {!account ? (
-                    <>
-                        <ConnectButton
-                            client={client}
-                            accountAbstraction={{
-                                chain: coinHuntersNetwork, // Use the custom network
-                                sponsorGas: true
-                            }}
-                            wallets={[
-                                inAppWallet({
-                                    auth: {
-                                        options: [
-                                            "email"
-                                        ]
-                                    }
-                                })
-                            ]}
-                        />
-                        <button
-                            onClick={() =>
-                                connect(async () => {
-                                    const wallet = createWallet("io.metamask");
-                                    await wallet.connect({ client });
-                                    return wallet;
-                                })
-                            }
-                            style={{
-                                padding: '0.5rem 1rem',
-                                background: '#007bff',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                marginTop: '1rem'
-                            }}
-                        >
-                            Connect with Metamask
-                        </button>
-                    </>
+                    <ConnectButton
+                        client={client}
+                        accountAbstraction={{
+                            chain: sepolia,
+                            sponsorGas: true
+                        }}
+                        wallets={[
+                            inAppWallet({
+                                auth: {
+                                    options:[
+                                        "email"
+                                    ]
+                                }
+                            })
+                        ]}
+                    />
                 ) : (
                     <>
                         <div
@@ -161,11 +125,11 @@ export default function HighLowGuessingGame() {
                                         marginBottom: '-10px',
                                         marginTop: '-10px'
                                     }}
-                                >{shortenAddress(account.address)}</p>
+                                >{shortenAddress(account.address)}</p> 
                                 <p style={{
-                                    fontSize: '0.75rem',
-                                    marginBottom: '-10px'
-                                }}
+                                        fontSize: '0.75rem',
+                                        marginBottom: '-10px'
+                                    }}
                                 >Balance: {tokenbalance?.displayValue}</p>
                             </div>
                             <button
