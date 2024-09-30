@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { ConnectButton, TransactionButton, useActiveAccount, useActiveWallet, useDisconnect, useReadContract } from "thirdweb/react";
+import { ConnectButton, TransactionButton, useActiveAccount, useActiveWallet, useDisconnect, useReadContract, useConnect } from "thirdweb/react";
 import { client } from "../client";
-import { inAppWallet } from "thirdweb/wallets";
+import { inAppWallet, createWallet } from "thirdweb/wallets";
 import { shortenAddress } from "thirdweb/utils";
 import { getContract } from "thirdweb";
 import { sepolia } from "thirdweb/chains";
@@ -20,8 +20,9 @@ interface GameResult {
 
 export default function HighLowGuessingGame() {
     const account = useActiveAccount();
-    const {disconnect} = useDisconnect();
+    const { disconnect } = useDisconnect();
     const wallet = useActiveWallet();
+    const { connect } = useConnect();
 
     const contract = getContract({
         client: client,
@@ -58,7 +59,7 @@ export default function HighLowGuessingGame() {
             contract: contract,
             address: account?.address!
         }
-    )
+    );
 
     return (
         <div style={{
@@ -87,22 +88,44 @@ export default function HighLowGuessingGame() {
             }}>
                 <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '2rem', textAlign: 'center' }}>High or Low Game</h1>
                 {!account ? (
-                    <ConnectButton
-                        client={client}
-                        accountAbstraction={{
-                            chain: sepolia,
-                            sponsorGas: true
-                        }}
-                        wallets={[
-                            inAppWallet({
-                                auth: {
-                                    options:[
-                                        "email"
-                                    ]
-                                }
-                            })
-                        ]}
-                    />
+                    <>
+                        <ConnectButton
+                            client={client}
+                            accountAbstraction={{
+                                chain: sepolia,
+                                sponsorGas: true
+                            }}
+                            wallets={[
+                                inAppWallet({
+                                    auth: {
+                                        options: [
+                                            "email"
+                                        ]
+                                    }
+                                })
+                            ]}
+                        />
+                        <button
+                            onClick={() =>
+                                connect(async () => {
+                                    const wallet = createWallet("io.metamask");
+                                    await wallet.connect({ client });
+                                    return wallet;
+                                })
+                            }
+                            style={{
+                                padding: '0.5rem 1rem',
+                                background: '#007bff',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                marginTop: '1rem'
+                            }}
+                        >
+                            Connect with Metamask
+                        </button>
+                    </>
                 ) : (
                     <>
                         <div
@@ -125,11 +148,11 @@ export default function HighLowGuessingGame() {
                                         marginBottom: '-10px',
                                         marginTop: '-10px'
                                     }}
-                                >{shortenAddress(account.address)}</p> 
+                                >{shortenAddress(account.address)}</p>
                                 <p style={{
-                                        fontSize: '0.75rem',
-                                        marginBottom: '-10px'
-                                    }}
+                                    fontSize: '0.75rem',
+                                    marginBottom: '-10px'
+                                }}
                                 >Balance: {tokenbalance?.displayValue}</p>
                             </div>
                             <button
