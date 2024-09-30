@@ -9,7 +9,7 @@ import { claimTo, getBalance } from "thirdweb/extensions/erc20";
 // Define the custom Coin Hunters network
 const coinHuntersNetwork = {
     name: "Coin Hunters",
-    chainId: 10202,
+    chainId: 0x27DA,
     rpc: ["https://dymrollapp-evm.chainad.org"],
     nativeCurrency: {
         name: "Coin Hunters",
