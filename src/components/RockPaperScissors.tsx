@@ -8,11 +8,12 @@ import { claimTo, getBalance } from "thirdweb/extensions/erc20";
 
 // Define the custom Coin Hunters network
 const coinHuntersNetwork = {
+    id: 10202, // Add the id property
     name: "Coin Hunters",
-    chainId: 0x27DA,
+    chainId: 0x27DA, // This is the decimal format
     rpc: ["https://dymrollapp-evm.chainad.org"],
     nativeCurrency: {
-        name: "Coin Hunters",
+        name: "Coin Hunters Token",
         symbol: "CHTR",
         decimals: 18,
     },
