@@ -4,8 +4,20 @@ import { client } from "../client";
 import { inAppWallet, createWallet } from "thirdweb/wallets";
 import { shortenAddress } from "thirdweb/utils";
 import { getContract } from "thirdweb";
-import { sepolia } from "thirdweb/chains";
 import { claimTo, getBalance } from "thirdweb/extensions/erc20";
+
+// Define the custom Coin Hunters network
+const coinHuntersNetwork = {
+    name: "Coin Hunters",
+    chainId: 10202,
+    rpc: ["https://dymrollapp-evm.chainad.org"],
+    nativeCurrency: {
+        name: "Coin Hunters",
+        symbol: "CHTR",
+        decimals: 18,
+    },
+    blockExplorerUrls: [], // Add block explorer URLs if available
+};
 
 type Guess = 'High' | 'Low';
 type Result = 'Win' | 'Lose';
@@ -26,8 +38,8 @@ export default function HighLowGuessingGame() {
 
     const contract = getContract({
         client: client,
-        chain: sepolia,
-        address: "0xf0Fb0F1c703b1129634e042e459Ec41cF79650B7"
+        chain: coinHuntersNetwork, // Use the custom network
+        address: "0x0CC72579F6813652cd1f1bBef99846A2Fe60E0d3"
     });
 
     const [result, setResult] = useState<GameResult | null>(null);
@@ -92,7 +104,7 @@ export default function HighLowGuessingGame() {
                         <ConnectButton
                             client={client}
                             accountAbstraction={{
-                                chain: sepolia,
+                                chain: coinHuntersNetwork, // Use the custom network
                                 sponsorGas: true
                             }}
                             wallets={[
