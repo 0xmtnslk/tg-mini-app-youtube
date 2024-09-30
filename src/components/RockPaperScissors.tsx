@@ -7,32 +7,18 @@ import { getContract } from "thirdweb";
 import { sepolia } from "thirdweb/chains";
 import { claimTo, getBalance } from "thirdweb/extensions/erc20";
 
-type Choice = 'Rock' | 'Paper' | 'Scissors';
-type Result = 'Win' | 'Lose' | 'Tie';
+type Guess = 'High' | 'Low';
+type Result = 'Win' | 'Lose';
 
-const choices: Choice[] = ['Rock', 'Paper', 'Scissors'];
-
-const getComputerChoice = (): Choice => choices[Math.floor(Math.random() * choices.length)];
-
-const determineWinner = (playerChoice: Choice, computerChoice: Choice): Result => {
-    if (playerChoice === computerChoice) return 'Tie';
-    if (
-        (playerChoice === 'Rock' && computerChoice === 'Scissors') ||
-        (playerChoice === 'Paper' && computerChoice === 'Rock') ||
-        (playerChoice === 'Scissors' && computerChoice === 'Paper')
-    ) {
-        return 'Win';
-    }
-    return 'Lose';
-};
+const getRandomNumber = (): number => Math.floor(Math.random() * 100) + 1;
 
 interface GameResult {
-    playerChoice: Choice;
-    computerChoice: Choice;
+    playerGuess: Guess;
+    computerNumber: number;
     gameResult: Result;
 }
 
-export default function RockPaperScissors() {
+export default function HighLowGuessingGame() {
     const account = useActiveAccount();
     const {disconnect} = useDisconnect();
     const wallet = useActiveWallet();
@@ -48,10 +34,11 @@ export default function RockPaperScissors() {
     const [showModal, setShowModal] = useState<boolean>(false);
     const [prizeClaimed, setPrizeClaimed] = useState<boolean>(false);
 
-    const handleChoice = (playerChoice: Choice) => {
-        const computerChoice = getComputerChoice();
-        const gameResult = determineWinner(playerChoice, computerChoice);
-        setResult({ playerChoice, computerChoice, gameResult });
+    const handleGuess = (playerGuess: Guess) => {
+        const computerNumber = getRandomNumber();
+        const isHigh = computerNumber > 50;
+        const gameResult = (playerGuess === 'High' && isHigh) || (playerGuess === 'Low' && !isHigh) ? 'Win' : 'Lose';
+        setResult({ playerGuess, computerNumber, gameResult });
         setShowPrize(gameResult === 'Win');
     };
 
@@ -98,7 +85,7 @@ export default function RockPaperScissors() {
                 justifyContent: 'flex-start',
                 position: 'relative'
             }}>
-                <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '2rem', textAlign: 'center' }}>Mini Game</h1>
+                <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '2rem', textAlign: 'center' }}>High or Low Game</h1>
                 {!account ? (
                     <ConnectButton
                         client={client}
@@ -160,12 +147,12 @@ export default function RockPaperScissors() {
                         </div>
                         {!result ? (
                             <div>
-                                <h3>Choose your option:</h3>
+                                <h3>Guess if the number is High or Low:</h3>
                                 <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', margin: "2rem" }}>
-                                    {choices.map((choice) => (
+                                    {['High', 'Low'].map((guess) => (
                                         <button
-                                            key={choice}
-                                            onClick={() => handleChoice(choice)}
+                                            key={guess}
+                                            onClick={() => handleGuess(guess as Guess)}
                                             style={{
                                                 padding: '0.5rem 1rem',
                                                 background: '#007bff',
@@ -173,14 +160,10 @@ export default function RockPaperScissors() {
                                                 border: 'none',
                                                 borderRadius: '4px',
                                                 cursor: 'pointer',
-                                                fontSize: '3rem'
+                                                fontSize: '1rem'
                                             }}
                                         >
-                                            {
-                                                choice === 'Rock' ? '🪨' :
-                                                choice === 'Paper' ? '📄' :
-                                                '✂️'
-                                            }
+                                            {guess}
                                         </button>
                                     ))}
                                 </div>
@@ -188,10 +171,10 @@ export default function RockPaperScissors() {
                         ) : (
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                 <p style={{ fontSize: '1.5rem', marginBottom: '-10px' }}>
-                                    You chose: {result.playerChoice}
+                                    You guessed: {result.playerGuess}
                                 </p>
                                 <p style={{ fontSize: '1.5rem', marginBottom: '-20px' }}>
-                                    Computer chose: {result.computerChoice}
+                                    Computer chose: {result.computerNumber}
                                 </p>
                                 <p style={{ fontWeight: 'bold', fontSize: '2rem' }}>
                                     Result: {result.gameResult}
